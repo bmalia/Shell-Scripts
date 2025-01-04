@@ -6,13 +6,32 @@ echo "This was mainly written for me to learn how the install process works. Ple
 sleep 1
 echo -n "Checking for internet..."
 ping -c 3 google.com >/dev/null 2>&1
-instatus=$?
-if [[ $instatus -eq 2 ]]; then
+ipstatus=$?
+if [[ $ipstatus -eq 2 ]]; then
   echo " Failed!"
   sleep .5
   echo "Error: No internet access. Please check your internet connection and try again"
-  echo "To connect to wifi, use the iwctl command"
-  exit 1
+  echo "Would you like to attempt to connect to wifi? [Y/N]"
+  while [[ "$config" != "y" && "$config" != "n" ]]; do
+    read -r -p "Invalid input. Please enter y or n: " confirm
+  done
+  if [ "$config" = y ]; then
+    echo "Initializing network scan on interface 'wlan0'..."
+    iwctl station wlan0 scan > /dev/null
+    sleep 2
+    echo "Scan complete. getting network list..."
+    iwctl station wlan0 get-networks
+    read -r -p "Enter the SSID of the network you would like to connect to: " ssid
+    echo "Requesting security method for network $ssid"
+    iwctl station wlan0 connect $ssid
+    echo "Attempting connection..."
+    sleep 2
+    echo "Testing connection..."
+  else
+    echo "You need internet access to proceed with the installation process."
+    echo "Please get internet access and try again"
+    exit 1
+  fi
 else
   echo " Done!"
   echo "Connection verified. Launching installer..."
