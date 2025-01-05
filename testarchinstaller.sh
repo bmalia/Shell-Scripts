@@ -27,6 +27,16 @@ if [[ $ipstatus -eq 2 ]]; then
     echo "Attempting connection..."
     sleep 2
     echo "Testing connection..."
+    ping -c 3 google.com >/dev/null 2>&1
+    ipstatus=$?
+    if [[ $ipstatus -eq 0 ]]; then
+      echo "Connection verified. Launching installer..."
+      sleep 1
+      clear
+    else
+      echo "Connection attempt failed"
+      exit 1
+    fi
   else
     echo "You need internet access to proceed with the installation process."
     echo "Please get internet access and try again"
